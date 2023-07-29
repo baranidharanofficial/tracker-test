@@ -149,15 +149,15 @@ app.post("/send", function (req, res) {
     getMessaging()
         .send(message)
         .then((response) => {
-            res.status(200).json({
-                message: "Successfully sent message",
-                token: receivedToken,
-            });
+            // res.status(200).json({
+            //     message: "Successfully sent message",
+            //     token: receivedToken,
+            // });
             console.log("Successfully sent message:", response);
         })
         .catch((error) => {
-            res.status(400);
-            res.send(error);
+            // res.status(400);
+            // res.send(error);
             console.log("Error sending message:", error);
         });
 
