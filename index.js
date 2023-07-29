@@ -80,12 +80,11 @@ app.get('/alerts', async (req, res) => {
 
 app.post('/alerts', async (req, res) => {
     const { url, price } = req.body;
-    fetchPrice(url, price);
     if (!url || !price) {
         return res.status(400).json({ message: 'URL and Price are required' });
     }
-
     try {
+        fetchPrice(url, price);
         const newAlert = await Alert.create({ url, price });
         res.status(201).json(newAlert);
     } catch (error) {
