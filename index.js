@@ -66,9 +66,9 @@ const fetchPrice = (productUrl, price) => {
 
 
 function sendNotification(productUrl) {
-    const receivedToken = req.body.fcmToken;
+    // const receivedToken = req.body.fcmToken;
 
-    console.log(receivedToken);
+    // console.log(receivedToken);
 
     const message = {
         notification: {
@@ -86,7 +86,7 @@ function sendNotification(productUrl) {
         .then((response) => {
             res.status(200).json({
                 message: "Successfully sent message",
-                token: receivedToken,
+                token: "ftTEe1fVTP2_xzGtwRToH4:ftTEe1fVTP2_xzGtwRToH4:APA91bGpgViNM4oFCxVQShEt5gZ7H1E4vvipZBK818SVwv7RF1eb8q5HBjktYWNdAyRmSapsPTTaV6ZDmyNQxcfXPODk0E9x3IrOcUoFtVv26XQXrIYjjTS9DTzrh8ftFQyzfD7xLBMV",
             });
             console.log("Successfully sent message:", response);
         })
