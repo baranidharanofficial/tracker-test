@@ -84,15 +84,15 @@ function sendNotification(productUrl) {
     getMessaging()
         .send(message)
         .then((response) => {
-            res.status(200).json({
-                message: "Successfully sent message",
-                token: "ftTEe1fVTP2_xzGtwRToH4:ftTEe1fVTP2_xzGtwRToH4:APA91bGpgViNM4oFCxVQShEt5gZ7H1E4vvipZBK818SVwv7RF1eb8q5HBjktYWNdAyRmSapsPTTaV6ZDmyNQxcfXPODk0E9x3IrOcUoFtVv26XQXrIYjjTS9DTzrh8ftFQyzfD7xLBMV",
-            });
+            // res.status(200).json({
+            //     message: "Successfully sent message",
+            //     token: "ftTEe1fVTP2_xzGtwRToH4:ftTEe1fVTP2_xzGtwRToH4:APA91bGpgViNM4oFCxVQShEt5gZ7H1E4vvipZBK818SVwv7RF1eb8q5HBjktYWNdAyRmSapsPTTaV6ZDmyNQxcfXPODk0E9x3IrOcUoFtVv26XQXrIYjjTS9DTzrh8ftFQyzfD7xLBMV",
+            // });
             console.log("Successfully sent message:", response);
         })
         .catch((error) => {
-            res.status(400);
-            res.send(error);
+            // res.status(400);
+            // res.send(error);
             console.log("Error sending message:", error);
         });
 }
