@@ -42,7 +42,7 @@ initializeApp({
 });
 
 const fetchPrice = (productUrl, price) => {
-    schedule.scheduleJob('*/10 * * * * *', () => {
+    schedule.scheduleJob('*/30 * * * * *', () => {
         console.log("Getting current price");
         axios.get(productUrl).then(({ data }) => {
             const $ = cheerio.load(data);
