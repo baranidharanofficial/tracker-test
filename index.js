@@ -4,7 +4,7 @@ import express, { json } from "express";
 import cors from "cors";
 import mongoose from 'mongoose';
 import schedule from 'node-schedule';
-import load from 'cheerio';
+import cheerio from 'cheerio';
 import axios from 'axios';
 
 process.env.GOOGLE_APPLICATION_CREDENTIALS;
@@ -45,9 +45,11 @@ const fetchPrice = (productUrl, price) => {
     schedule.scheduleJob('*/10 * * * * *', () => {
         console.log("Getting current price");
         axios.get(productUrl).then(({ data }) => {
-            const $ = load(data);
+            const $ = cheerio.load(data);
             let strPrice = $('.a-price-whole', '#apex_desktop').html();
-            const currentPrice = parseFloat(strPrice);
+            const currentPrice = parseFloat(strPrice.split(',').join(""));
+
+            console.log(currentPrice, price, strPrice, strPrice.split(',').join(""));
 
             if (currentPrice == price) {
                 console.log("Equal Price")
