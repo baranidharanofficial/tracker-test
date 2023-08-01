@@ -140,6 +140,8 @@ app.post('/register', async (req, res) => {
         const { email, password, fcm_token } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        console.log(email, fcm_token);
+
         const checkUser = await User.findOne({ email });
 
         if (checkUser) {
@@ -151,8 +153,6 @@ app.post('/register', async (req, res) => {
             password: hashedPassword,
             fcm_token: fcm_token
         });
-
-
 
         await user.save();
         res.status(201).json({ message: 'User registered successfully' });
