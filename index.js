@@ -70,8 +70,8 @@ schedule.scheduleJob('*/30 * * * * *', async () => {
         console.log(alerts[i].url);
         axios.get(alerts[i].url).then(({ data }) => {
             const $ = cheerio.load(data);
-            let strPrice = $('.a-price-whole', '#apex_desktop').html();
-            const currentPrice = parseFloat(strPrice.split(',').join(""));
+            let strPrice = $('.a-offscreen', '#apex_desktop').html();
+            const currentPrice = parseFloat(strPrice.split(',').join("").slice(1));
 
             console.log(currentPrice, alerts[i].price, strPrice, strPrice.split(',').join(""));
 
