@@ -36,11 +36,57 @@ app.use(function (req, res, next) {
     next();
 });
 
-
 initializeApp({
     credential: applicationDefault(),
     projectId: 'test-9b907',
 });
+
+// Task schema and model
+const alertSchema = new mongoose.Schema({
+    url: { type: String, required: true },
+    price: { type: String, required: true },
+    user_id: { type: String, required: false },
+    fcm_token: { type: String, required: false },
+});
+
+// Task schema and model
+const userSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    fcm_token: { type: String, required: false },
+});
+
+const Alert = mongoose.model('Alert', alertSchema);
+
+const User = mongoose.model('User', userSchema);
+
+
+schedule.scheduleJob('*/30 * * * * *', async () => {
+    console.log("Getting current price");
+
+    const alerts = await Alert.find();
+
+    for (let i = 0; i < alerts.length; i++) {
+        console.log(alerts[i].url);
+        axios.get(alerts[i].url).then(({ data }) => {
+            const $ = cheerio.load(data);
+            let strPrice = $('.a-price-whole', '#apex_desktop').html();
+            const currentPrice = parseFloat(strPrice.split(',').join(""));
+
+            console.log(currentPrice, alerts[i].price, strPrice, strPrice.split(',').join(""));
+
+            if (currentPrice == alerts[i].price) {
+                console.log("Equal Price");
+                sendNotification(productUrl, alerts[i].fcm_token);
+            } else if (currentPrice > alerts[i].price) {
+                console.log("Wait for price to decrease");
+            } else if (currentPrice < alerts[i].price) {
+                console.log("Its time to buy your product");
+                sendNotification(productUrl, alerts[i].fcm_token);
+            }
+        });
+    }
+})
 
 const fetchPrice = (productUrl, price) => {
     schedule.scheduleJob('*/30 * * * * *', () => {
@@ -66,7 +112,7 @@ const fetchPrice = (productUrl, price) => {
 }
 
 
-function sendNotification(productUrl) {
+function sendNotification(productUrl, token) {
     // const receivedToken = req.body.fcmToken;
 
     // console.log(receivedToken);
@@ -79,7 +125,7 @@ function sendNotification(productUrl) {
         data: {
             test: productUrl
         },
-        token: "ftTEe1fVTP2_xzGtwRToH4:APA91bGpgViNM4oFCxVQShEt5gZ7H1E4vvipZBK818SVwv7RF1eb8q5HBjktYWNdAyRmSapsPTTaV6ZDmyNQxcfXPODk0E9x3IrOcUoFtVv26XQXrIYjjTS9DTzrh8ftFQyzfD7xLBMV",
+        token: token,
     };
 
     getMessaging()
@@ -92,23 +138,6 @@ function sendNotification(productUrl) {
         });
 }
 
-// Task schema and model
-const alertSchema = new mongoose.Schema({
-    url: { type: String, required: true },
-    price: { type: String, required: true },
-    user_id: { type: String, required: false },
-});
-
-// Task schema and model
-const userSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    fcm_token: { type: String, required: false },
-});
-
-const Alert = mongoose.model('Alert', alertSchema);
-
-const User = mongoose.model('User', userSchema);
 
 // Routes
 app.get('/alerts', async (req, res) => {
@@ -130,7 +159,7 @@ app.post('/alerts', async (req, res) => {
     }
     try {
         fetchPrice(url, price);
-        const newAlert = await Alert.create({ url, price, user_id: user._id });
+        const newAlert = await Alert.create({ url, price, user_id: user._id, fcm_token: user.fcm_token });
         res.status(201).json(newAlert);
     } catch (error) {
         res.status(500).json({ message: 'Error creating alert' });
