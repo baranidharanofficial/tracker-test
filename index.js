@@ -96,6 +96,7 @@ function sendNotification(productUrl) {
 const alertSchema = new mongoose.Schema({
     url: { type: String, required: true },
     price: { type: String, required: true },
+    user_id: { type: String, required: false },
 });
 
 // Task schema and model
@@ -120,16 +121,19 @@ app.get('/alerts', async (req, res) => {
 });
 
 app.post('/alerts', async (req, res) => {
-    const { url, price } = req.body;
+    const { email, url, price } = req.body;
+
+    const user = await User.findOne({ email });
+
     if (!url || !price) {
         return res.status(400).json({ message: 'URL and Price are required' });
     }
     try {
         fetchPrice(url, price);
-        const newAlert = await Alert.create({ url, price });
+        const newAlert = await Alert.create({ url, price, user_id: user._id });
         res.status(201).json(newAlert);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating task' });
+        res.status(500).json({ message: 'Error creating alert' });
     }
 });
 
@@ -181,7 +185,7 @@ app.post('/login', async (req, res) => {
             { email, password, fcm_token }
         );
 
-        res.json({ message: 'Login successful' });
+        res.status(200).json({ message: 'Login successful' });
     } catch (err) {
         res.status(500).json({ error: 'Error logging in' });
     }
