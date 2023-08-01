@@ -77,12 +77,12 @@ schedule.scheduleJob('*/30 * * * * *', async () => {
 
             if (currentPrice == alerts[i].price) {
                 console.log("Equal Price");
-                sendNotification(productUrl, alerts[i].fcm_token);
+                sendNotification(alerts[i].url, alerts[i].fcm_token);
             } else if (currentPrice > alerts[i].price) {
                 console.log("Wait for price to decrease");
             } else if (currentPrice < alerts[i].price) {
                 console.log("Its time to buy your product");
-                sendNotification(productUrl, alerts[i].fcm_token);
+                sendNotification(alerts[i].url, alerts[i].fcm_token);
             }
         });
     }
