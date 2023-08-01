@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import schedule from 'node-schedule';
 import cheerio from 'cheerio';
 import axios from 'axios';
+import bcrypt from 'bcrypt';
 
 process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
@@ -97,7 +98,16 @@ const alertSchema = new mongoose.Schema({
     price: { type: String, required: true },
 });
 
+// Task schema and model
+const userSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    fcm_token: { type: String, required: false },
+});
+
 const Alert = mongoose.model('Alert', alertSchema);
+
+const User = mongoose.model('User', userSchema);
 
 // Routes
 app.get('/alerts', async (req, res) => {
@@ -123,6 +133,59 @@ app.post('/alerts', async (req, res) => {
     }
 });
 
+
+// Register route
+app.post('/register', async (req, res) => {
+    try {
+        const { email, password, fcm_token } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const checkUser = await User.findOne({ email });
+
+        if (checkUser) {
+            return res.status(401).json({ error: 'User already exists' });
+        }
+
+        const user = new User({
+            email: email,
+            password: hashedPassword,
+            fcm_token: fcm_token
+        });
+
+
+
+        await user.save();
+        res.status(201).json({ message: 'User registered successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Error registering user' });
+    }
+});
+
+// Login route
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password, fcm_token } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        await User.findOneAndUpdate(
+            { email, password, fcm_token }
+        );
+
+        res.json({ message: 'Login successful' });
+    } catch (err) {
+        res.status(500).json({ error: 'Error logging in' });
+    }
+});
 
 app.post("/send", function (req, res) {
     const receivedToken = req.body.fcmToken;
