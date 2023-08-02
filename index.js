@@ -113,7 +113,7 @@ async function fetchDetails(productUrl) {
         'price': strPrice,
         'title': $('#productTitle').html().trim(),
     };
-    console.log(productData);
+    console.log(productData, "test");
     return productData;
 }
 
