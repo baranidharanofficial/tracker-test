@@ -269,7 +269,7 @@ app.post('/login', async (req, res) => {
             }
         );
 
-        res.status(200).json({ message: 'Login successful' });
+        res.status(200).json({ id: user._id, message: 'Login successful' });
     } catch (err) {
         res.status(500).json({ error: 'Error logging in' });
     }
