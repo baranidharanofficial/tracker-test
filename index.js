@@ -129,7 +129,9 @@ function sendNotification(alert) {
             body: "For " + alert['title']
         },
         data: {
-            data: alert
+            title: alert['title'],
+            imgUrl: alert['imgUrl'],
+            alert_price: alert['alert_price'],
         },
         token: alert['fcm_token'],
     };
