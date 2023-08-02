@@ -94,6 +94,8 @@ schedule.scheduleJob('* * * * *', async () => {
                 console.log("Its time to buy your product");
                 sendNotification(alerts[i]);
             }
+        }).catch((err) => {
+            console.log("Error " + err);
         });
     }
 })
