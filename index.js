@@ -202,11 +202,12 @@ app.post('/alerts', async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!url || !price) {
-
         return res.status(400).json({ message: 'URL and Price are required' });
     }
+
     try {
         const details = await fetchDetails(url);
+        console.log(details);
         const newAlert = await Alert.create({
             url: url,
             imgUrl: details.imgUrl,
