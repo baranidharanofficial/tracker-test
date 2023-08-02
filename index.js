@@ -129,6 +129,7 @@ function sendNotification(alert) {
             body: "For " + alert['title']
         },
         data: {
+            url: alert['url'],
             title: alert['title'],
             imgUrl: alert['imgUrl'],
             alert_price: alert['alert_price'],
