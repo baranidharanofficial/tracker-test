@@ -88,12 +88,18 @@ schedule.scheduleJob('*/30 * * * * *', async () => {
     }
 })
 
-const fetchPrice = (productUrl, price) => {
-
+function fetchPrice(productUrl, price) {
     console.log("Getting current price");
     axios.get(productUrl).then(({ data }) => {
         const $ = cheerio.load(data);
-        let strPrice = $('.a-offprice', '#apex_desktop').html();
+
+        let strPrice = "";
+        if ($('.a-offscreen', '#apex_desktop').html()) {
+            strPrice = $('.a-offscreen', '#apex_desktop').html();
+        } else {
+            strPrice = $('.a-offprice', '#apex_desktop').html();
+        }
+
         const currentPrice = parseFloat(strPrice.split(',').join(""));
 
         console.log(currentPrice, price, strPrice, strPrice.split(',').join(""));
@@ -108,6 +114,25 @@ const fetchPrice = (productUrl, price) => {
             sendNotification(productUrl);
         }
     });
+}
+
+async function fetchDetails(productUrl) {
+    console.log("Getting current price");
+    const { data } = await axios.get(productUrl);
+    const $ = cheerio.load(data);
+    let strPrice = "";
+    if ($('.a-offscreen', '#apex_desktop').html()) {
+        strPrice = $('.a-offscreen', '#apex_desktop').html();
+    } else {
+        strPrice = $('.a-offprice', '#apex_desktop').html();
+    }
+    const productData = {
+        'imgUrl': $('#landingImage').attr('src'),
+        'price': strPrice,
+        'title': $('#productTitle').html().trim(),
+    };
+    console.log(productData);
+    return productData;
 }
 
 
@@ -145,6 +170,24 @@ app.get('/alerts', async (req, res) => {
         res.json(alerts);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving tasks' });
+    }
+});
+
+app.post('/details', async (req, res) => {
+
+    const { url } = req.body;
+
+    console.log(url);
+
+    try {
+        let result = {};
+        if (url) {
+            result = await fetchDetails(url);
+        }
+
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ message: 'Error creating alert' });
     }
 });
 
