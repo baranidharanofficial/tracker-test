@@ -70,7 +70,7 @@ schedule.scheduleJob('* * * * *', async () => {
     const alerts = await Alert.find();
 
     for (let i = 0; i < alerts.length; i++) {
-        console.log(alerts[i]);
+        // console.log(alerts[i]);
         axios.get(alerts[i].url).then(({ data }) => {
             const $ = cheerio.load(data);
             let strPrice = "0";
