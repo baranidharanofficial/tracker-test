@@ -70,7 +70,7 @@ schedule.scheduleJob('*/30 * * * * *', async () => {
     const alerts = await Alert.find();
 
     for (let i = 0; i < alerts.length; i++) {
-        console.log(alerts[i].url);
+        console.log(alerts[i]);
         axios.get(alerts[i].url).then(({ data }) => {
             const $ = cheerio.load(data);
             let strPrice = "0";
@@ -286,6 +286,14 @@ app.post('/login', async (req, res) => {
                 fcm_token: fcm_token
             }
         );
+
+        Alert.updateMany({ user_id: user._id }, { fcm_token: fcm_token })
+            .then((result) => {
+                console.log(`${result.nModified} FCM tokens updated`);
+            })
+            .catch((error) => {
+                console.error('Error updating FCM tokens:', error);
+            });
 
         res.status(200).json({ id: user._id, message: 'Login successful' });
     } catch (err) {
