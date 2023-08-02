@@ -96,6 +96,7 @@ schedule.scheduleJob('* * * * *', async () => {
             }
         }).catch((err) => {
             console.log("Error " + err);
+
         });
     }
 })
