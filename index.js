@@ -61,32 +61,32 @@ const Alert = mongoose.model('Alert', alertSchema);
 const User = mongoose.model('User', userSchema);
 
 
-schedule.scheduleJob('*/30 * * * * *', async () => {
-    console.log("Getting current price");
+// schedule.scheduleJob('*/30 * * * * *', async () => {
+//     console.log("Getting current price");
 
-    const alerts = await Alert.find();
+//     const alerts = await Alert.find();
 
-    for (let i = 0; i < alerts.length; i++) {
-        console.log(alerts[i].url);
-        axios.get(alerts[i].url).then(({ data }) => {
-            const $ = cheerio.load(data);
-            let strPrice = $('.a-offscreen', '#apex_desktop').html();
-            const currentPrice = parseFloat(strPrice.split(',').join("").slice(1));
+//     for (let i = 0; i < alerts.length; i++) {
+//         console.log(alerts[i].url);
+//         axios.get(alerts[i].url).then(({ data }) => {
+//             const $ = cheerio.load(data);
+//             let strPrice = $('.a-offscreen', '#apex_desktop').html();
+//             const currentPrice = parseFloat(strPrice.split(',').join("").slice(1));
 
-            console.log(currentPrice, alerts[i].price, strPrice, strPrice.split(',').join(""));
+//             console.log(currentPrice, alerts[i].price, strPrice, strPrice.split(',').join(""));
 
-            if (currentPrice == alerts[i].price) {
-                console.log("Equal Price");
-                sendNotification(alerts[i].url, alerts[i].fcm_token);
-            } else if (currentPrice > alerts[i].price) {
-                console.log("Wait for price to decrease");
-            } else if (currentPrice < alerts[i].price) {
-                console.log("Its time to buy your product");
-                sendNotification(alerts[i].url, alerts[i].fcm_token);
-            }
-        });
-    }
-})
+//             if (currentPrice == alerts[i].price) {
+//                 console.log("Equal Price");
+//                 sendNotification(alerts[i].url, alerts[i].fcm_token);
+//             } else if (currentPrice > alerts[i].price) {
+//                 console.log("Wait for price to decrease");
+//             } else if (currentPrice < alerts[i].price) {
+//                 console.log("Its time to buy your product");
+//                 sendNotification(alerts[i].url, alerts[i].fcm_token);
+//             }
+//         });
+//     }
+// })
 
 const fetchPrice = (productUrl, price) => {
     schedule.scheduleJob('*/30 * * * * *', () => {
@@ -173,7 +173,7 @@ app.post('/register', async (req, res) => {
         const { email, password, fcm_token } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        console.log(email, fcm_token);
+        console.log(email, hashedPassword, fcm_token);
 
         const checkUser = await User.findOne({ email });
 
@@ -198,7 +198,12 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { email, password, fcm_token } = req.body;
+
+        console.log(email, password, fcm_token);
+
         const user = await User.findOne({ email });
+
+        console.log(user);
 
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
@@ -206,12 +211,19 @@ app.post('/login', async (req, res) => {
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
+        console.log(isPasswordValid);
+
         if (!isPasswordValid) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
         await User.findOneAndUpdate(
-            { email, password, fcm_token }
+            {
+                email: email
+            },
+            {
+                fcm_token: fcm_token
+            }
         );
 
         res.status(200).json({ message: 'Login successful' });
