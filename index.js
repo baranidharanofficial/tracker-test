@@ -131,7 +131,7 @@ function sendNotification(alert) {
         data: {
             data: alert
         },
-        token: token,
+        token: alert['fcm_token'],
     };
 
     getMessaging()
