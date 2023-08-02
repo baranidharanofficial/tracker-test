@@ -44,7 +44,10 @@ initializeApp({
 // Task schema and model
 const alertSchema = new mongoose.Schema({
     url: { type: String, required: true },
-    price: { type: String, required: true },
+    imgUrl: { type: String, required: true },
+    title: { type: String, required: true },
+    alert_price: { type: String, required: true },
+    current_price: { type: String, required: true },
     user_id: { type: String, required: false },
     fcm_token: { type: String, required: false },
 });
@@ -80,48 +83,20 @@ schedule.scheduleJob('*/30 * * * * *', async () => {
             console.log(strPrice);
             const currentPrice = parseFloat(strPrice.split(',').join("").slice(1));
 
-            console.log(currentPrice, alerts[i].price, strPrice, strPrice.split(',').join(""));
+            console.log(currentPrice, alerts[i].alert_price, strPrice, strPrice.split(',').join(""));
 
-            if (currentPrice == alerts[i].price) {
+            if (currentPrice == alerts[i].alert_price) {
                 console.log("Equal Price");
                 sendNotification(alerts[i].url, alerts[i].fcm_token);
-            } else if (currentPrice > alerts[i].price) {
+            } else if (currentPrice > alerts[i].alert_price) {
                 console.log("Wait for price to decrease");
-            } else if (currentPrice < alerts[i].price) {
+            } else if (currentPrice < alerts[i].alert_price) {
                 console.log("Its time to buy your product");
                 sendNotification(alerts[i].url, alerts[i].fcm_token);
             }
         });
     }
 })
-
-function fetchPrice(productUrl, price) {
-    console.log("Getting current price");
-    axios.get(productUrl).then(({ data }) => {
-        const $ = cheerio.load(data);
-
-        let strPrice = "0";
-        if ($('.a-offscreen', '#apex_desktop').html()) {
-            strPrice = $('.a-offscreen', '#apex_desktop').html();
-        } else if ($('.a-offprice', '#apex_desktop').html()) {
-            strPrice = $('.a-offprice', '#apex_desktop').html();
-        }
-
-        const currentPrice = parseFloat(strPrice.split(',').join(""));
-
-        console.log(currentPrice, price, strPrice, strPrice.split(',').join(""));
-
-        if (currentPrice == price) {
-            console.log("Equal Price");
-            sendNotification(productUrl);
-        } else if (currentPrice > price) {
-            console.log("Wait for price to decrease");
-        } else if (currentPrice < price) {
-            console.log("Its time to buy your product");
-            sendNotification(productUrl);
-        }
-    });
-}
 
 async function fetchDetails(productUrl) {
     console.log("Getting current price");
@@ -227,11 +202,20 @@ app.post('/alerts', async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!url || !price) {
+
         return res.status(400).json({ message: 'URL and Price are required' });
     }
     try {
-        fetchPrice(url, price);
-        const newAlert = await Alert.create({ url, price, user_id: user._id, fcm_token: user.fcm_token });
+        const details = await fetchDetails(url);
+        const newAlert = await Alert.create({
+            url: url,
+            imgUrl: details.imgUrl,
+            alert_price: price,
+            current_price: details.price,
+            title: details.title,
+            user_id: user._id,
+            fcm_token: user.fcm_token,
+        });
         res.status(201).json(newAlert);
     } catch (error) {
         res.status(500).json({ message: 'Error creating alert' });
