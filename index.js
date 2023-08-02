@@ -64,7 +64,7 @@ const Alert = mongoose.model('Alert', alertSchema);
 const User = mongoose.model('User', userSchema);
 
 
-schedule.scheduleJob('*/30 * * * * *', async () => {
+schedule.scheduleJob('* * * * *', async () => {
     console.log("Getting current price");
 
     const alerts = await Alert.find();
@@ -87,12 +87,12 @@ schedule.scheduleJob('*/30 * * * * *', async () => {
 
             if (currentPrice == alerts[i].alert_price) {
                 console.log("Equal Price");
-                sendNotification(alerts[i].url, alerts[i].fcm_token);
+                sendNotification(alerts[i]);
             } else if (currentPrice > alerts[i].alert_price) {
                 console.log("Wait for price to decrease");
             } else if (currentPrice < alerts[i].alert_price) {
                 console.log("Its time to buy your product");
-                sendNotification(alerts[i].url, alerts[i].fcm_token);
+                sendNotification(alerts[i]);
             }
         });
     }
@@ -118,18 +118,18 @@ async function fetchDetails(productUrl) {
 }
 
 
-function sendNotification(productUrl, token) {
+function sendNotification(alert) {
     // const receivedToken = req.body.fcmToken;
 
     // console.log(receivedToken);
 
     const message = {
         notification: {
-            title: "Price alert",
-            body: "It's time to order"
+            title: "Price drop alert !!!",
+            body: "For " + alert['title']
         },
         data: {
-            test: productUrl
+            data: alert
         },
         token: token,
     };
