@@ -70,7 +70,14 @@ schedule.scheduleJob('*/30 * * * * *', async () => {
         console.log(alerts[i].url);
         axios.get(alerts[i].url).then(({ data }) => {
             const $ = cheerio.load(data);
-            let strPrice = $('.a-offscreen', '#apex_desktop').html();
+            let strPrice = "0";
+            if ($('.a-offscreen', '#apex_desktop').html()) {
+                strPrice = $('.a-offscreen', '#apex_desktop').html();
+            } else if ($('.a-offprice', '#apex_desktop').html()) {
+                strPrice = $('.a-offprice', '#apex_desktop').html();
+            }
+
+            console.log(strPrice);
             const currentPrice = parseFloat(strPrice.split(',').join("").slice(1));
 
             console.log(currentPrice, alerts[i].price, strPrice, strPrice.split(',').join(""));
@@ -93,10 +100,10 @@ function fetchPrice(productUrl, price) {
     axios.get(productUrl).then(({ data }) => {
         const $ = cheerio.load(data);
 
-        let strPrice = "";
+        let strPrice = "0";
         if ($('.a-offscreen', '#apex_desktop').html()) {
             strPrice = $('.a-offscreen', '#apex_desktop').html();
-        } else {
+        } else if ($('.a-offprice', '#apex_desktop').html()) {
             strPrice = $('.a-offprice', '#apex_desktop').html();
         }
 
@@ -123,7 +130,7 @@ async function fetchDetails(productUrl) {
     let strPrice = "";
     if ($('.a-offscreen', '#apex_desktop').html()) {
         strPrice = $('.a-offscreen', '#apex_desktop').html();
-    } else {
+    } else if ($('.a-offprice', '#apex_desktop').html()) {
         strPrice = $('.a-offprice', '#apex_desktop').html();
     }
     const productData = {
@@ -173,6 +180,28 @@ app.get('/alerts', async (req, res) => {
     }
 });
 
+// Routes
+app.get('/alerts/:user_id', async (req, res) => {
+    try {
+        const userId = req.params.user_id;
+
+        Alert.find({ user_id: userId })
+            .then((alerts) => {
+                // `users` contains an array of documents matching the filter
+                console.log(alerts);
+                res.status(200).json(alerts);
+            })
+            .catch((error) => {
+                console.error('Error fetching users:', error);
+                res.status(500).json({ message: 'Error retrieving tasks' });
+            });
+
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving tasks' });
+    }
+});
+
 app.post('/details', async (req, res) => {
 
     const { url } = req.body;
@@ -208,6 +237,10 @@ app.post('/alerts', async (req, res) => {
         res.status(500).json({ message: 'Error creating alert' });
     }
 });
+
+
+
+
 
 
 // Register route
