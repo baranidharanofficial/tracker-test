@@ -61,54 +61,53 @@ const Alert = mongoose.model('Alert', alertSchema);
 const User = mongoose.model('User', userSchema);
 
 
-// schedule.scheduleJob('*/30 * * * * *', async () => {
-//     console.log("Getting current price");
+schedule.scheduleJob('*/30 * * * * *', async () => {
+    console.log("Getting current price");
 
-//     const alerts = await Alert.find();
+    const alerts = await Alert.find();
 
-//     for (let i = 0; i < alerts.length; i++) {
-//         console.log(alerts[i].url);
-//         axios.get(alerts[i].url).then(({ data }) => {
-//             const $ = cheerio.load(data);
-//             let strPrice = $('.a-offscreen', '#apex_desktop').html();
-//             const currentPrice = parseFloat(strPrice.split(',').join("").slice(1));
+    for (let i = 0; i < alerts.length; i++) {
+        console.log(alerts[i].url);
+        axios.get(alerts[i].url).then(({ data }) => {
+            const $ = cheerio.load(data);
+            let strPrice = $('.a-offscreen', '#apex_desktop').html();
+            const currentPrice = parseFloat(strPrice.split(',').join("").slice(1));
 
-//             console.log(currentPrice, alerts[i].price, strPrice, strPrice.split(',').join(""));
+            console.log(currentPrice, alerts[i].price, strPrice, strPrice.split(',').join(""));
 
-//             if (currentPrice == alerts[i].price) {
-//                 console.log("Equal Price");
-//                 sendNotification(alerts[i].url, alerts[i].fcm_token);
-//             } else if (currentPrice > alerts[i].price) {
-//                 console.log("Wait for price to decrease");
-//             } else if (currentPrice < alerts[i].price) {
-//                 console.log("Its time to buy your product");
-//                 sendNotification(alerts[i].url, alerts[i].fcm_token);
-//             }
-//         });
-//     }
-// })
+            if (currentPrice == alerts[i].price) {
+                console.log("Equal Price");
+                sendNotification(alerts[i].url, alerts[i].fcm_token);
+            } else if (currentPrice > alerts[i].price) {
+                console.log("Wait for price to decrease");
+            } else if (currentPrice < alerts[i].price) {
+                console.log("Its time to buy your product");
+                sendNotification(alerts[i].url, alerts[i].fcm_token);
+            }
+        });
+    }
+})
 
 const fetchPrice = (productUrl, price) => {
-    schedule.scheduleJob('*/30 * * * * *', () => {
-        console.log("Getting current price");
-        axios.get(productUrl).then(({ data }) => {
-            const $ = cheerio.load(data);
-            let strPrice = $('.a-price-whole', '#apex_desktop').html();
-            const currentPrice = parseFloat(strPrice.split(',').join(""));
 
-            console.log(currentPrice, price, strPrice, strPrice.split(',').join(""));
+    console.log("Getting current price");
+    axios.get(productUrl).then(({ data }) => {
+        const $ = cheerio.load(data);
+        let strPrice = $('.a-offprice', '#apex_desktop').html();
+        const currentPrice = parseFloat(strPrice.split(',').join(""));
 
-            if (currentPrice == price) {
-                console.log("Equal Price");
-                sendNotification(productUrl);
-            } else if (currentPrice > price) {
-                console.log("Wait for price to decrease");
-            } else if (currentPrice < price) {
-                console.log("Its time to buy your product");
-                sendNotification(productUrl);
-            }
-        })
-    })
+        console.log(currentPrice, price, strPrice, strPrice.split(',').join(""));
+
+        if (currentPrice == price) {
+            console.log("Equal Price");
+            sendNotification(productUrl);
+        } else if (currentPrice > price) {
+            console.log("Wait for price to decrease");
+        } else if (currentPrice < price) {
+            console.log("Its time to buy your product");
+            sendNotification(productUrl);
+        }
+    });
 }
 
 
