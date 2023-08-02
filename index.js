@@ -142,7 +142,6 @@ function sendNotification(alert) {
     getMessaging()
         .send(message)
         .then((response) => {
-            console.log(alert);
             console.log("Successfully sent message:", response);
         })
         .catch((error) => {
