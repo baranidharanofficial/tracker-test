@@ -183,6 +183,7 @@ app.post('/details', async (req, res) => {
         let result = {};
         if (url) {
             result = await fetchDetails(url);
+            console.log(result);
         }
 
         res.status(200).json(result);
