@@ -93,6 +93,7 @@ schedule.scheduleJob('* * * * *', async () => {
             } else if (currentPrice < alerts[i].alert_price) {
                 console.log("Its time to buy your product");
                 sendNotification(alerts[i]);
+
             }
         }).catch((err) => {
             console.log("Error " + err);
