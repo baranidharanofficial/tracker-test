@@ -38,7 +38,7 @@ app.use(function (req, res, next) {
 
 initializeApp({
     credential: applicationDefault(),
-    projectId: 'test-9b907',
+    projectId: 'rate-flicks',
 });
 
 // Task schema and model
