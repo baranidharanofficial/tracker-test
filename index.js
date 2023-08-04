@@ -106,25 +106,30 @@ schedule.scheduleJob('* * * * *', async () => {
 
 async function fetchDetails(productUrl) {
     console.log("Getting current price");
-    const { data } = await axios.get(productUrl);
-    const $ = cheerio.load(data);
-    let strPrice = "";
-    if ($('.a-offscreen', '#apex_desktop').html().trim().length > 0) {
-        strPrice = $('.a-offscreen', '#apex_desktop').html();
-    } else if ($('.a-offprice', '#apex_desktop').html().trim().length > 0) {
-        strPrice = $('.a-offprice', '#apex_desktop').html();
-    } else {
-        strPrice = "00";
+
+    try {
+        const { data } = await axios.get(productUrl);
+        const $ = cheerio.load(data);
+        let strPrice = "";
+        if ($('.a-offscreen', '#apex_desktop').html().trim().length > 0) {
+            strPrice = $('.a-offscreen', '#apex_desktop').html();
+        } else if ($('.a-offprice', '#apex_desktop').html().trim().length > 0) {
+            strPrice = $('.a-offprice', '#apex_desktop').html();
+        } else {
+            strPrice = "00";
+        }
+
+        const productData = {
+            'imgUrl': $('#landingImage').attr('src'),
+            'price': strPrice,
+            'title': $('#productTitle').html().trim(),
+        };
+        console.log(productData, "test");
+        return productData;
+    } catch (err) {
+        console.log("Error : " + err);
     }
 
-
-    const productData = {
-        'imgUrl': $('#landingImage').attr('src'),
-        'price': strPrice,
-        'title': $('#productTitle').html().trim(),
-    };
-    console.log(productData, "test");
-    return productData;
 }
 
 
@@ -198,14 +203,14 @@ app.post('/details', async (req, res) => {
 
     try {
         let result = {};
-        if (url) {
+        if (url.length > 0) {
             result = await fetchDetails(url);
             console.log(result);
         }
 
         res.status(200).json(result);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating alert' });
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
