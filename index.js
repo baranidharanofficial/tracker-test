@@ -59,9 +59,16 @@ const userSchema = new mongoose.Schema({
     fcm_token: { type: String, required: false },
 });
 
+const dealSchema = new mongoose.Schema({
+    url: { type: String, required: true, },
+    img_url: { type: String, required: true },
+});
+
 const Alert = mongoose.model('Alert', alertSchema);
 
 const User = mongoose.model('User', userSchema);
+
+const TopDeal = mongoose.model('Deal', dealSchema);
 
 
 schedule.scheduleJob('* * * * *', async () => {
@@ -177,6 +184,36 @@ function sendNotification(alert) {
         });
 }
 
+
+// Routes
+app.post('/top-deals', async (req, res) => {
+    console.log("---- ADD TOP DEALS -----");
+    try {
+        const items = req.body;
+
+        const result = await TopDeal.insertMany(items);
+
+        res.json({
+            success: true,
+            insertedCount: result.length,
+            insertedIds: result.map(item => item._id),
+        });
+    } catch (error) {
+        console.error('Error adding items to MongoDB', error);
+        res.status(500).json({ error: 'Failed to add items to MongoDB' });
+    }
+});
+
+// Routes
+app.get('/top-deals', async (req, res) => {
+    console.log("---- FETCH TOP DEALS -----");
+    try {
+        const deals = await TopDeal.find();
+        res.status(200).json(deals);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving tasks' });
+    }
+});
 
 // Routes
 app.get('/alerts', async (req, res) => {
