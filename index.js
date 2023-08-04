@@ -64,11 +64,20 @@ const dealSchema = new mongoose.Schema({
     img_url: { type: String, required: true },
 });
 
+const offerSchema = new mongoose.Schema({
+    url: { type: String, required: true, },
+    img_url: { type: String, required: true },
+    offer_price: { type: String, required: true },
+    price: { type: String, required: true },
+});
+
 const Alert = mongoose.model('Alert', alertSchema);
 
 const User = mongoose.model('User', userSchema);
 
 const TopDeal = mongoose.model('Deal', dealSchema);
+
+const Offer = mongoose.model('Offer', offerSchema);
 
 
 schedule.scheduleJob('* * * * *', async () => {
@@ -185,7 +194,7 @@ function sendNotification(alert) {
 }
 
 
-// Routes
+// ADD TOP DEALS
 app.post('/top-deals', async (req, res) => {
     console.log("---- ADD TOP DEALS -----");
     try {
@@ -204,11 +213,41 @@ app.post('/top-deals', async (req, res) => {
     }
 });
 
-// Routes
+// GET TOP DEALS
 app.get('/top-deals', async (req, res) => {
     console.log("---- FETCH TOP DEALS -----");
     try {
         const deals = await TopDeal.find();
+        res.status(200).json(deals);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving tasks' });
+    }
+});
+
+// DEALS
+app.post('/offers', async (req, res) => {
+    console.log("---- ADD OFFERS -----");
+    try {
+        const items = req.body;
+
+        const result = await Offer.insertMany(items);
+
+        res.json({
+            success: true,
+            insertedCount: result.length,
+            insertedIds: result.map(item => item._id),
+        });
+    } catch (error) {
+        console.error('Error adding items to MongoDB', error);
+        res.status(500).json({ error: 'Failed to add items to MongoDB' });
+    }
+});
+
+// Routes
+app.get('/offers', async (req, res) => {
+    console.log("---- FETCH OFFERS -----");
+    try {
+        const deals = await Offer.find();
         res.status(200).json(deals);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving tasks' });
