@@ -288,6 +288,19 @@ app.get('/alerts/:user_id', async (req, res) => {
     }
 });
 
+app.delete('/alerts/:id', async (req, res) => {
+    try {
+        const alertId = req.params.id;
+
+        await Alert.findOneAndDelete({ _id: alertId });
+
+        res.status(200).json({ message: "Alert Deleted Successfully" });
+
+    } catch (err) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+})
+
 app.post('/details', async (req, res) => {
     console.log("---- FETCH PRODUCT DETAILS -----");
     const { url } = req.body;
