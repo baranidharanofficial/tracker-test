@@ -99,21 +99,20 @@ schedule.scheduleJob('* * * * *', async () => {
             }
         }).catch((err) => {
             console.log("Error " + err);
-
         });
     }
 })
 
 async function fetchDetails(productUrl) {
-    console.log("Getting current price");
+    console.log("Getting product details");
 
     try {
         const { data } = await axios.get(productUrl);
         const $ = cheerio.load(data);
         let strPrice = "";
-        if ($('.a-offscreen', '#apex_desktop').html().trim().length > 0) {
+        if ($('.a-offscreen', '#apex_desktop').html()?.trim().length > 0) {
             strPrice = $('.a-offscreen', '#apex_desktop').html();
-        } else if ($('.a-offprice', '#apex_desktop').html().trim().length > 0) {
+        } else if ($('.a-offprice', '#apex_desktop').html()?.trim().length > 0) {
             strPrice = $('.a-offprice', '#apex_desktop').html();
         } else {
             strPrice = "00";
