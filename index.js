@@ -107,9 +107,9 @@ async function fetchDetails(productUrl) {
     const { data } = await axios.get(productUrl);
     const $ = cheerio.load(data);
     let strPrice = "";
-    if ($('.a-offscreen', '#apex_desktop').html().length > 0) {
+    if ($('.a-offscreen', '#apex_desktop').html().trim().length > 0) {
         strPrice = $('.a-offscreen', '#apex_desktop').html();
-    } else if ($('.a-offprice', '#apex_desktop').html().length > 0) {
+    } else if ($('.a-offprice', '#apex_desktop').html().trim().length > 0) {
         strPrice = $('.a-offprice', '#apex_desktop').html();
     } else {
         strPrice = "00";
