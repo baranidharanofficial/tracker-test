@@ -111,9 +111,10 @@ async function fetchDetails(productUrl) {
         strPrice = $('.a-offscreen', '#apex_desktop').html();
     } else if ($('.a-offprice', '#apex_desktop').html().length > 0) {
         strPrice = $('.a-offprice', '#apex_desktop').html();
+    } else {
+        strPrice = "00";
     }
 
-    strPrice = "00";
 
     const productData = {
         'imgUrl': $('#landingImage').attr('src'),
