@@ -146,6 +146,13 @@ function sendNotification(alert) {
 
     // console.log(receivedToken);
 
+    console.log({
+        url: alert['url'],
+        title: alert['title'],
+        imgUrl: alert['imgUrl'],
+        alert_price: alert['alert_price'],
+    });
+
     const message = {
         notification: {
             title: "Price drop alert !!!",
