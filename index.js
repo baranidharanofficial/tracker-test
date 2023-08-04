@@ -65,13 +65,14 @@ const User = mongoose.model('User', userSchema);
 
 
 schedule.scheduleJob('* * * * *', async () => {
-    console.log("Getting current price");
+    console.log("---- PRICE DROP ALERT -----");
 
     const alerts = await Alert.find();
 
     for (let i = 0; i < alerts.length; i++) {
-        // console.log(alerts[i]);
-        axios.get(alerts[i].url).then(({ data }) => {
+        console.log(alerts[i].title);
+        try {
+            const { data } = await axios.get(alerts[i].url);
             const $ = cheerio.load(data);
             let strPrice = "0";
             if ($('.a-offscreen', '#apex_desktop').html()?.trim().length > 0) {
@@ -95,16 +96,15 @@ schedule.scheduleJob('* * * * *', async () => {
             } else if (currentPrice < alerts[i].alert_price) {
                 console.log("Its time to buy your product");
                 sendNotification(alerts[i]);
-
             }
-        }).catch((err) => {
+        } catch (err) {
             console.log("Error " + err);
-        });
+        };
     }
 })
 
 async function fetchDetails(productUrl) {
-    console.log("Getting product details");
+    console.log("---- FETCHING DETAILS -----");
 
     try {
         const { data } = await axios.get(productUrl);
@@ -164,6 +164,7 @@ function sendNotification(alert) {
 
 // Routes
 app.get('/alerts', async (req, res) => {
+    console.log("---- FETCH ALERTS -----");
     try {
         const alerts = await Alert.find();
         res.json(alerts);
@@ -174,6 +175,7 @@ app.get('/alerts', async (req, res) => {
 
 // Routes
 app.get('/alerts/:user_id', async (req, res) => {
+    console.log("---- FETCH ALERTS BY USER -----");
     try {
         const userId = req.params.user_id;
 
@@ -195,15 +197,14 @@ app.get('/alerts/:user_id', async (req, res) => {
 });
 
 app.post('/details', async (req, res) => {
-
+    console.log("---- FETCH PRODUCT DETAILS -----");
     const { url } = req.body;
 
-    console.log(url);
+    console.log(url)
 
     try {
-        let result = {};
         if (url.length > 0) {
-            result = await fetchDetails(url);
+            let result = await fetchDetails(url);
             console.log(result);
         }
 
@@ -214,6 +215,7 @@ app.post('/details', async (req, res) => {
 });
 
 app.post('/alerts', async (req, res) => {
+    console.log("---- CREATE ALERT -----");
     const { email, url, price } = req.body;
 
     const user = await User.findOne({ email });
@@ -247,6 +249,7 @@ app.post('/alerts', async (req, res) => {
 
 // Register route
 app.post('/register', async (req, res) => {
+    console.log("---- REGISTER -----");
     try {
         const { email, password, fcm_token } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -274,6 +277,7 @@ app.post('/register', async (req, res) => {
 
 // Login route
 app.post('/login', async (req, res) => {
+    console.log("---- LOGIN -----");
     try {
         const { email, password, fcm_token } = req.body;
 
