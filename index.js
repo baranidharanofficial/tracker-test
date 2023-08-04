@@ -74,10 +74,12 @@ schedule.scheduleJob('* * * * *', async () => {
         axios.get(alerts[i].url).then(({ data }) => {
             const $ = cheerio.load(data);
             let strPrice = "0";
-            if ($('.a-offscreen', '#apex_desktop').html()) {
+            if ($('.a-offscreen', '#apex_desktop').html().trim().length > 0) {
                 strPrice = $('.a-offscreen', '#apex_desktop').html();
-            } else if ($('.a-offprice', '#apex_desktop').html()) {
+            } else if ($('.a-offprice', '#apex_desktop').html().trim().length > 0) {
                 strPrice = $('.a-offprice', '#apex_desktop').html();
+            } else {
+                strPrice = "00";
             }
 
             console.log(strPrice);
