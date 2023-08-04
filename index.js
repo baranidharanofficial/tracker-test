@@ -84,9 +84,18 @@ schedule.scheduleJob('* * * * *', async () => {
             }
 
             console.log(strPrice);
-            const currentPrice = parseFloat(strPrice.split(',').join("").slice(1));
+            let currentPrice = parseFloat(strPrice.split(',').join(""));
+
+            if (strPrice.split(',').join("").includes('₹')) {
+                currentPrice = parseFloat(strPrice.split(',').join("").slice(1));
+            }
 
             console.log(currentPrice, alerts[i].alert_price, strPrice, strPrice.split(',').join(""));
+
+            await Alert.findOneAndUpdate(
+                { _id: alerts[i]._id },
+                { current_price: currentPrice }
+            );
 
             if (currentPrice == alerts[i].alert_price) {
                 console.log("Equal Price");
@@ -203,12 +212,13 @@ app.post('/details', async (req, res) => {
     console.log(url)
 
     try {
-        if (url.length > 0) {
+        if (url) {
             let result = await fetchDetails(url);
             console.log(result);
+            res.status(200).json(result);
+        } else {
+            console.log(url);
         }
-
-        res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
     }
