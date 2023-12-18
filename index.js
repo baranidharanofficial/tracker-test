@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 
 // MongoDB connection (Replace 'your-mongodb-connection-string' with your actual connection string)
-mongoose.connect('mongodb+srv://baranidharanofficial:5U29QvB6eoghs7Da@training.liykfwa.mongodb.net/', {
+mongoose.connect('mongodb+srv://baranidharanofficial:xvGpoNWidICzP7I5@training.liykfwa.mongodb.net/', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
